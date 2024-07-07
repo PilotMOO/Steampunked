@@ -1,0 +1,15 @@
+{
+  "values": [
+    "steampunked:test_block",
+    "steampunked:dangerous_block",
+    "steampunked:test_stairs",
+    "steampunked:test_slab",
+    "steampunked:test_wall",
+    "steampunked:test_button",
+    "steampunked:test_fence",
+    "steampunked:test_fence_gate",
+    "steampunked:test_door",
+    "steampunked:test_trapdoor",
+    "steampunked:test_pressure_plate"
+  ]
+}

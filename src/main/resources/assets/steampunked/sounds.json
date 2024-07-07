@@ -1,0 +1,53 @@
+{
+  "test_sound": {
+    "subtitles": "sounds.steampunked:test_sound",
+    "sounds": [
+      "steampunked:test_sound"
+    ]
+  },
+  "recon_enginesolo": {
+    "subtitles": "sounds.steampunked:recon_enginesolo",
+    "sounds": [
+      "steampunked:recon_enginesolo"
+    ]
+  },
+  "recon_gearsolo": {
+    "subtitles": "sounds.steampunked:recon_gearsolo",
+    "sounds": [
+      "steampunked:recon_gearsolo"
+    ]
+  },
+  "recon_step": {
+    "subtitles": "sounds.steampunked:recon_step",
+    "sounds": [
+      "steampunked:recon_step"
+    ]
+  },
+  "recon_ticking": {
+    "subtitles": "sounds.steampunked:recon_ticking",
+    "sounds": [
+      "steampunked:recon_ticking"
+    ]
+  },
+  "recon_whirsolo": {
+    "subtitles": "sounds.steampunked:recon_whirsolo",
+    "sounds": [
+      "steampunked:recon_whirsolo"
+    ]
+  },
+  "recon_idle_random": {
+    "subtitles": "sounds.steampunked:recon_idle_random",
+    "sounds": [
+      "steampunked:recon_enginesolo",
+      "steampunked:recon_gearsolo",
+      "steampunked:recon_ticking",
+      "steampunked:recon_whirsolo"
+    ]
+  },
+  "recon_zombie_death": {
+    "subtitles": "sounds.steampunked:recon_zombie_death",
+    "sounds": [
+      "steampunked:recon_zombie_death"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "item.steampunked.testitem": "Idk wtf this is, ok?",
+  "item.steampunked.dangerous_item": "Bomb Them!",
+  "item.steampunked.test_food_item": "Please Mr. Steve dont eat me AAAAAAAAAHHHHHHHHHHH",
+  "item.steampunked.test_fuel_item": "Gyatt please put me in a furnace",
+  "item.steampunked.fucking_cabinet": "Cabinet",
+
+  "item.steampunked.test_sword": "Stab me UwU",
+  "item.steampunked.test_pickaxe": "Pick me :]",
+  "item.steampunked.test_axe": "May I axe you a question? (this joke sucks)",
+  "item.steampunked.test_shovel": "I am a dwarf and I'm digging a hole, diggy diggy hole~",
+  "item.steampunked.test_hoe": "I will not make a joke about your mother",
+
+  "item.steampunked.test_helmet": "Hardhat",
+  "item.steampunked.test_chestplate": "Can I put a trademark here...? ™",
+  "item.steampunked.test_leggings": "The Wendy's 4for4",
+  "item.steampunked.test_boots": "Crocs",
+
+  "block.steampunked.test_block": "Kill me",
+  "block.steampunked.test_block_2": "This hurts",
+  "block.steampunked.dangerous_block": "Yikes in-a-box",
+
+  "block.steampunked.test_stairs": "Test Stairs",
+  "block.steampunked.test_slab": "Test Slab",
+  "block.steampunked.test_button": "Test Button",
+  "block.steampunked.test_pressure_plate": "Test Pressure Plate",
+  "block.steampunked.test_fence": "Test Fence",
+  "block.steampunked.test_fence_gate": "Test Fence Gate",
+  "block.steampunked.test_wall": "Test Wall",
+  "block.steampunked.test_door": "Test Door",
+  "block.steampunked.test_trapdoor": "Test Trapdoor",
+
+  "creativetab.steampunked_tab": "Steampunked",
+
+  "tooltips.steampunked.dangerous_item.tooltip": "Bomb them.",
+
+  "sounds.steampunked:test_sound": "BWAHAHAHA!",
+  "sounds.steampunked:recon_idle_random": "Reconstructed idling",
+  "sounds.steampunked:recon_enginesolo": "Engine Sputter",
+  "sounds.steampunked:recon_gearsolo": "Gears",
+  "sounds.steampunked:recon_step": "Heavy Footsteps",
+  "sounds.steampunked:recon_ticking": "Mechanical Ticking",
+  "sounds.steampunked:recon_whirsolo": "Whirring",
+  "sounds.steampunked:recon_zombie_death": "Reconstructed Zombie Decommissioning"
+}

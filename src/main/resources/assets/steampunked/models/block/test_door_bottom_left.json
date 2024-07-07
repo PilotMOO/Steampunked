@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_bottom_left",
+  "textures": {
+    "bottom": "steampunked:block/test_door_bottom",
+    "top": "steampunked:block/test_door_top"
+  }
+}

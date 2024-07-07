@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "steampunked:block/test_block"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "steampunked:block/test_pressure_plate"
+    },
+    "powered=true": {
+      "model": "steampunked:block/test_pressure_plate_down"
+    }
+  }
+}

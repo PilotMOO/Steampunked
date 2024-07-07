@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "steampunked:test_block_2"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "steampunked:blocks/test_block_2"
+}

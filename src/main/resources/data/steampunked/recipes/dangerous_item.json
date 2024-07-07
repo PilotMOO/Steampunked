@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " * ",
+    " # ",
+    " # "
+  ],
+  "key": {
+    "#": {
+      "item": "steampunked:testitem"
+    },
+    "*": {
+      "item": "steampunked:test_block"
+    }
+  },
+  "result": {
+    "item": "steampunked:dangerous_item"
+  }
+}

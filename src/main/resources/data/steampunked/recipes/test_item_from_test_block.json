@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "steampunked:test_block"
+    }
+  ],
+  "result": {
+    "item": "steampunked:testitem",
+    "count": 8
+  }
+}

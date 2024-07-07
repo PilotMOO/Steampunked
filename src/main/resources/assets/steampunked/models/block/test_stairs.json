@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "steampunked:block/test_block",
+    "side": "steampunked:block/test_block",
+    "top": "steampunked:block/test_block"
+  }
+}
