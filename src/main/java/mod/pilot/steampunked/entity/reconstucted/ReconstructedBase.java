@@ -2,10 +2,10 @@ package mod.pilot.steampunked.entity.reconstucted;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.steampunked.Config;
-import mod.pilot.steampunked.entity.BeeEntity;
+import mod.pilot.steampunked.sound.ModSounds;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -21,7 +21,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import mod.pilot.steampunked.Steampunked;
 import net.minecraftforge.fluids.FluidType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -52,6 +51,34 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     public static final int POIMemoryRange = 128;
 
     public int DeathAnimationLength = 40;
+
+    protected enum state{
+        Idle, //0
+        Walking, //1
+        Running, //2
+        Mining, //3
+        FeedingReconstructor, //4
+        Dying //5
+    }
+    public int AIState = -1;
+
+    protected int MoveDecay = 0;
+    protected static final int MoveDecayMax = 20;
+    public boolean isMovingSmart() {
+        if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0) {
+            MoveDecay = 0;
+        }
+        else if (getNavigation().getPath() == null){
+            return false;
+        }
+        else
+        {
+            if (MoveDecay > MoveDecayMax){
+                return false;
+            }
+        }
+        return true;
+    }
     /**/
 
     //NBT related
@@ -108,11 +135,64 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     @Override
     protected void registerGoals() {
         //decidePOIGoal(); Old
+        this.goalSelector.addGoal(1, new DelayedMovementGoal(this, 10));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
-                (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId());}));
+                (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof ReconstructedBase);}));
+    }
+
+    public class DelayedMovementGoal extends Goal {
+        private final Mob mob;
+        private int tickCounter = 0;
+        private final int delay;
+        private LivingEntity target;
+        float priorrot;
+
+        public DelayedMovementGoal(Mob mob, int delay) {
+            this.mob = mob;
+            this.delay = delay;
+            priorrot = mob.getYRot();
+        }
+
+        @Override
+        public boolean canUse() {
+            return mob.getTarget() != null; // This goal should activate if there is a target
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return mob.getTarget() != null; // This goal should continue as long as there is a target
+        }
+
+        @Override
+        public void tick() {
+            tickCounter++;
+            if (tickCounter % delay >= 5) {
+                if (mob.getNavigation().getPath() == null) {
+                    target = mob.getTarget();
+                    if (target != null) {
+                        mob.getNavigation().moveTo(target, 1.0D); // Move towards the target
+                    }
+                    else {
+                        stop();
+                    }
+                } else {
+                    mob.getNavigation().tick(); // Continue along the existing path
+                }
+            } else {
+                mob.setYBodyRot(priorrot);
+                mob.getNavigation().stop(); // Temporarily stop navigation updates
+            }
+
+            priorrot = mob.getYRot();
+        }
+
+        @Override
+        public void stop() {
+            tickCounter = 0;
+        }
     }
 
     /* Old
@@ -259,6 +339,63 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     /**/
 
     //Overridden general methods
+
+    @Override
+    public void tick() {
+        super.tick();
+        MoveDecay++;
+        if (isMovingSmart()){
+            if (isAggressive()){
+                AIState = state.Running.ordinal();
+            }
+            else{
+                AIState = state.Walking.ordinal();
+            }
+        }
+        if (getNavigation().getPath() == null){
+            AIState = state.Idle.ordinal();
+        }
+        ManageSounds();
+    }
+
+    private int MoveSoundCD = 0;
+    private boolean hasPlayedDeath = false;
+
+    public void ManageSounds(){
+        if (AIState == state.Dying.ordinal() && !hasPlayedDeath){
+            if (level().isClientSide()){
+                level().playLocalSound(
+                        this.getX(), this.getY(), this.getZ(),
+                        getDeathSound(),
+                        SoundSource.HOSTILE, 1.0F, 1.0F, false);
+            }
+            hasPlayedDeath = true;
+        }
+        else{
+            if (MoveSoundCD == 0){
+                if (AIState == state.Walking.ordinal()){
+                    if (level().isClientSide()){
+                        level().playLocalSound(
+                                this.getX(), this.getY(), this.getZ(),
+                                getStepSound(),
+                                SoundSource.HOSTILE, 0.25F, 1.0F, false);
+                    }
+                    MoveSoundCD = 10;
+                }
+                if (AIState == state.Running.ordinal()){
+                    if (level().isClientSide()){
+                        level().playLocalSound(
+                                this.getX(), this.getY(), this.getZ(),
+                                getStepSound(),
+                                SoundSource.HOSTILE, 0.25F, 1.0F, false);
+                    }
+                    MoveSoundCD = 5;
+                }
+            }
+            MoveSoundCD--;
+        }
+    }
+
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (source.getDirectEntity() instanceof ReconstructedBase){
@@ -269,22 +406,22 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
             //Inform the rest of the group of the target, and make a new goal of type attackTargetOmniscient();
         }
 
+        playHurtSound(source);
+
         return super.hurt(source, amount);
     }
 
     @Override
     protected void tickDeath() {
         ++this.deathTime;
+        AIState = state.Dying.ordinal();
         if (this.deathTime >= DeathAnimationLength && !this.level().isClientSide() && !this.isRemoved()) {
             this.level().broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
+            Steampunked.allReconMobs.remove(this);
         }
     }
 
-    @Override
-    protected float getWaterSlowDown() {
-        return 1f;
-    }
     @Override
     protected boolean isAffectedByFluids() {
         return false;
@@ -296,6 +433,14 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     @Override
     public boolean canDrownInFluidType(FluidType type) {
         return false;
+    }
+
+    @Override
+    public void travel(Vec3 pTravelVector) {
+        super.travel(pTravelVector);
+        if (isInWater() && horizontalCollision){
+            self().setDeltaMovement(self().getDeltaMovement().add(0.0D, 0.1d, 0.0D));
+        }
     }
     /**/
 
@@ -346,9 +491,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     }
     /**/
 
-    @Nullable
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return super.getAmbientSound();
+    protected SoundEvent getStepSound(){
+        return ModSounds.RECON_WALK.get();
     }
 }

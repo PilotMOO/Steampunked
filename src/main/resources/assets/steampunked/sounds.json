@@ -17,10 +17,10 @@
       "steampunked:recon_gearsolo"
     ]
   },
-  "recon_step": {
-    "subtitles": "sounds.steampunked:recon_step",
+  "recon_walk": {
+    "subtitles": "sounds.steampunked:recon_walk",
     "sounds": [
-      "steampunked:recon_step"
+      "steampunked:recon_walk"
     ]
   },
   "recon_ticking": {
@@ -48,6 +48,24 @@
     "subtitles": "sounds.steampunked:recon_zombie_death",
     "sounds": [
       "steampunked:recon_zombie_death"
+    ]
+  },
+  "recon_hurt": {
+    "subtitles": "sounds.steampunked:recon_hurt",
+    "sounds": [
+      "steampunked:recon_hurt"
+    ]
+  },
+  "recon_idle": {
+    "subtitles": "sounds.steampunked:recon_idle",
+    "sounds": [
+      "steampunked:recon_idle"
+    ]
+  },
+  "reconstructor_work": {
+    "subtitles": "sounds.steampunked:reconstructor_work",
+    "sounds": [
+      "steampunked:reconstructor_work"
     ]
   }
 }

@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"Idle2": {
+		"Idle": {
 			"loop": true,
 			"animation_length": 2.5,
 			"bones": {
@@ -1132,25 +1132,13 @@
 			},
 			"sound_effects": {
 				"0.0": {
-					"effect": "reconstructedstep"
-				},
-				"0.4167": {
-					"effect": "piston_retract"
-				},
-				"0.9167": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"1.0": {
-					"effect": "reconstructedstep"
-				},
-				"1.4167": {
-					"effect": "piston_retract"
-				},
-				"1.9167": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"2.0": {
-					"effect": "reconstructedstep"
+					"effect": "step"
 				}
 			}
 		},
@@ -2192,52 +2180,19 @@
 			},
 			"sound_effects": {
 				"0.0": {
-					"effect": "reconstructedstep"
-				},
-				"0.2083": {
-					"effect": "piston_retract"
-				},
-				"0.4167": {
-					"effect": "piston_extend"
-				},
-				"0.4583": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"0.5": {
-					"effect": "reconstructedstep"
-				},
-				"0.7083": {
-					"effect": "piston_retract"
-				},
-				"0.9167": {
-					"effect": "piston_retract"
-				},
-				"0.9583": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"1.0": {
-					"effect": "reconstructedstep"
-				},
-				"1.2083": {
-					"effect": "piston_retract"
-				},
-				"1.375": {
-					"effect": "piston_extend"
-				},
-				"1.4583": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"1.5": {
-					"effect": "reconstructedstep"
-				},
-				"1.7083": {
-					"effect": "piston_retract"
-				},
-				"1.9583": {
-					"effect": "piston_extend"
+					"effect": "step"
 				},
 				"2.0": {
-					"effect": "reconstructedstep"
+					"effect": "step"
 				}
 			}
 		},
@@ -2625,11 +2580,6 @@
 							"vector": [0, 0, 0]
 						}
 					}
-				}
-			},
-			"sound_effects": {
-				"0.0": {
-					"effect": "reconzombiedeath"
 				}
 			}
 		}

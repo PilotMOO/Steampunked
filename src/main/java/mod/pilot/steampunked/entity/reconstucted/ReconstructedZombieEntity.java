@@ -8,12 +8,14 @@ import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import mod.pilot.steampunked.sound.ModSounds;
+import org.jetbrains.annotations.Nullable;
 
 public class ReconstructedZombieEntity extends ReconstructedBase {
     public ReconstructedZombieEntity(EntityType<? extends Monster> entityType, Level level) {
@@ -24,34 +26,18 @@ public class ReconstructedZombieEntity extends ReconstructedBase {
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "Walk/Idle", 2, event ->
+        controllers.add(new AnimationController<>(this, "Move/Idle", 2, event ->
         {
-            if (event.isMoving()){
-                return event.setAndContinue(RawAnimation.begin().thenLoop("Run"));
+            if (isMovingSmart()){
+                if (AIState == state.Running.ordinal()){
+                    return event.setAndContinue(RawAnimation.begin().thenLoop("Run"));
+                }
+                return event.setAndContinue(RawAnimation.begin().thenLoop("Walk"));
             }
-            return event.setAndContinue(RawAnimation.begin().thenLoop("Idle2"));
-
-        })
-                .setSoundKeyframeHandler(event -> {
-                    if (event.getKeyframeData().getSound().matches("reconstructedstep"))
-                        if (level().isClientSide())
-                            level().playLocalSound(
-                                    this.getX(), this.getY(), this.getZ(),
-                                    ModSounds.RECON_STEP.get(),
-                                    SoundSource.HOSTILE, 0.25F, 1.0F, false);
-                    if (event.getKeyframeData().getSound().matches("piston_retract"))
-                        if (level().isClientSide())
-                            level().playLocalSound(
-                                    this.getX(), this.getY(), this.getZ(),
-                                    SoundEvents.PISTON_CONTRACT,
-                                    SoundSource.HOSTILE, 0.25F, 1.0F, false);
-                    if (event.getKeyframeData().getSound().matches("piston_extend"))
-                        if (level().isClientSide())
-                            level().playLocalSound(
-                                    this.getX(), this.getY(), this.getZ(),
-                                    SoundEvents.PISTON_EXTEND,
-                                    SoundSource.HOSTILE, 0.25F, 1.0F, false);
-                }));
+            else{
+                return event.setAndContinue(RawAnimation.begin().thenLoop("Idle"));
+            }
+        }));
         controllers.add(new AnimationController<>(this, "Death", 10, event ->
             {
                 if (this.dead){
@@ -81,7 +67,18 @@ public class ReconstructedZombieEntity extends ReconstructedBase {
     }
 
     @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return ModSounds.RECON_IDLE.get();
+    }
+    @Override
+    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+        return ModSounds.RECON_HURT.get();
+    }
+    @Override
     protected SoundEvent getDeathSound() {
         return ModSounds.RECON_ZOMBIE_DEATH.get();
+    }
+    protected SoundEvent getStepSound(){
+        return ModSounds.RECON_WALK.get();
     }
 }

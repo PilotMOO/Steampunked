@@ -20,8 +20,11 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> RECON_GEAR = registerSoundEvents("recon_gearsolo");
     public static final RegistryObject<SoundEvent> RECON_TICK = registerSoundEvents("recon_ticking");
     public static final RegistryObject<SoundEvent> RECON_WHIR = registerSoundEvents("recon_whirsolo");
-    public static final RegistryObject<SoundEvent> RECON_STEP = registerSoundEvents("recon_step");
     public static final RegistryObject<SoundEvent> RECON_ZOMBIE_DEATH = registerSoundEvents("recon_zombie_death");
+    public static final RegistryObject<SoundEvent> RECON_WALK = registerSoundEvents("recon_walk");
+    public static final RegistryObject<SoundEvent> RECON_IDLE = registerSoundEvents("recon_idle");
+    public static final RegistryObject<SoundEvent> RECON_HURT = registerSoundEvents("recon_hurt");
+    public static final RegistryObject<SoundEvent> RECONSTRUCTOR_WORK = registerSoundEvents("reconstructor_work");
 
     public static final ForgeSoundType TEST_SOUND_TYPE = new ForgeSoundType(1f, 1f,
             null, null, null, null, null); //Replace Null with actual sounds

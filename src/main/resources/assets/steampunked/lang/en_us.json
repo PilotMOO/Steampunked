@@ -38,8 +38,11 @@
   "sounds.steampunked:recon_idle_random": "Reconstructed idling",
   "sounds.steampunked:recon_enginesolo": "Engine Sputter",
   "sounds.steampunked:recon_gearsolo": "Gears",
-  "sounds.steampunked:recon_step": "Heavy Footsteps",
   "sounds.steampunked:recon_ticking": "Mechanical Ticking",
   "sounds.steampunked:recon_whirsolo": "Whirring",
-  "sounds.steampunked:recon_zombie_death": "Reconstructed Zombie Decommissioning"
+  "sounds.steampunked:recon_zombie_death": "Reconstructed Zombie Decommissioning",
+  "sounds.steampunked:recon_walk": "Heavy Footsteps",
+  "sounds.steampunked:recon_idle": "Mechanical Construct Idling",
+  "sounds.steampunked:recon_hurt": "Reconstructed Hurt",
+  "sounds.steampunked:reconstructor_work": "Reconstructor Construction"
 }
