@@ -28,7 +28,7 @@ public class POI {
         this.POIPos = block.getCenter();
     }
     public POI(ReconstructedBase parent, Mob target){
-        int priorityCheck = (int)Steampunked.GetMobPriorityFor(target);
+        int priorityCheck = Steampunked.GetMobPriorityFor(target);
         if (priorityCheck == 1){
             this.Priority = 3;
         }

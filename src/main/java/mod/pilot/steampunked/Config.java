@@ -23,12 +23,17 @@ public class Config
 
     public static class Server{
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklisted_targets;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> juicy_blocks;
 
         public Server(ForgeConfigSpec.Builder builder){
             builder.push("Mob Targeting");
             this.blacklisted_targets = builder.defineList("Mobs the Reconstructeds Ignore",
                     Lists.newArrayList(
                             "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
+            builder.push("Juicy Blocks");
+            this.juicy_blocks = builder.defineList("Blocks desired by the Reconstructed (Forge Tags)",
+                    Lists.newArrayList(
+                            "forge:ores/copper", "forge:ores/iron", "forge:ores/coal") , o -> o instanceof String);
             builder.pop();
         }
     }

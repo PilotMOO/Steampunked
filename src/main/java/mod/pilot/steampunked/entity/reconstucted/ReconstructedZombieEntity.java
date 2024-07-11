@@ -29,7 +29,7 @@ public class ReconstructedZombieEntity extends ReconstructedBase {
         controllers.add(new AnimationController<>(this, "Move/Idle", 2, event ->
         {
             if (isMovingSmart()){
-                if (AIState == state.Running.ordinal()){
+                if (getAIState() == state.Running.ordinal()){
                     return event.setAndContinue(RawAnimation.begin().thenLoop("Run"));
                 }
                 return event.setAndContinue(RawAnimation.begin().thenLoop("Walk"));

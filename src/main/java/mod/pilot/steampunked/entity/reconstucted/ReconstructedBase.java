@@ -4,8 +4,15 @@ import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.steampunked.Config;
 import mod.pilot.steampunked.sound.ModSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -16,15 +23,17 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import mod.pilot.steampunked.Steampunked;
 import net.minecraftforge.fluids.FluidType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class ReconstructedBase extends Monster implements GeoEntity {
     //Upon-creation methods
@@ -50,9 +59,11 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     public static final int POIListMax = 5;
     public static final int POIMemoryRange = 128;
 
+    public BlockPos JuicyBlock;
+
     public int DeathAnimationLength = 40;
 
-    protected enum state{
+    public enum state{
         Idle, //0
         Walking, //1
         Running, //2
@@ -60,20 +71,29 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         FeedingReconstructor, //4
         Dying //5
     }
-    public int AIState = -1;
 
-    protected int MoveDecay = 0;
-    protected static final int MoveDecayMax = 20;
+    public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(ReconstructedBase.class, EntityDataSerializers.INT);
+    public int getAIState(){return entityData.get(AIState);}
+    public void setAIState(Integer count){
+        entityData.set(AIState, count);
+    }
+
+    public static final EntityDataAccessor<Integer> MoveDecay = SynchedEntityData.defineId(ReconstructedBase.class, EntityDataSerializers.INT);
+    public int getMoveDecay(){return entityData.get(MoveDecay);}
+    public void setMoveDecay(Integer count){ entityData.set(MoveDecay, count); }
+    public void addMoveDecay(Integer count){ entityData.set(MoveDecay, getMoveDecay() + count); }
+    protected static final int MoveDecayMax = 40;
+
     public boolean isMovingSmart() {
         if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0) {
-            MoveDecay = 0;
+            setMoveDecay(0);
         }
         else if (getNavigation().getPath() == null){
             return false;
         }
         else
         {
-            if (MoveDecay > MoveDecayMax){
+            if (getMoveDecay() > MoveDecayMax){
                 return false;
             }
         }
@@ -82,117 +102,36 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     /**/
 
     //NBT related
-    /* Uses old stuff
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        int index = 0;
-        if (POIList != null && POIList.size() > 0){
-            POIManager manager = new POIManager(this, POIList);
-            manager.EvaluatePOIOrdering();
-            manager.CleanList();
-            for (POI poi : POIList){
-                tag.putIntArray("POI_" + index + "_Values_Array", new int[]{ poi.Priority, poi.BlockValue, poi.BlockDepth});
-                if (poi.POITarget != null){
-                    tag.putString("POI_" + "_Target_ID", poi.POITarget.toString());
-                }
-                tag.putDouble("POI_" + index + "_Pos_X", poi.POIPos.x);
-                tag.putDouble("POI_" + index + "_Pos_Y", poi.POIPos.y);
-                tag.putDouble("POI_" + index + "_Pos_Z", poi.POIPos.z);
-            }
-        }
+        tag.putInt("AIState",entityData.get(AIState));
+        tag.putInt("MoveDecay",entityData.get(MoveDecay));
     }
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
+    public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (POIList != null && POIList.size() > 0){
-            for (int i = 0; i == POIListMax; i++){
-                int[] values = tag.getIntArray("POI_" + i + "_Values_Array");
-                String targetID = tag.getString("POI_" + i + "_Target_ID");
-                int priority = -1;
-                int blockValue = -1;
-                int blockDepth = -1;
-                if (values.length > 0){
-                    priority = values[0];
-                    blockValue = values[1];
-                    blockDepth = values[2];
-                }
-                Vec3 poiPos = new Vec3(tag.getDouble("POI_" + i + "_Pos_X"), tag.getDouble("POI_" + i + "_Pos_Y"),
-                        tag.getDouble("POI_" + i + "_Pos_Z"));
-                if (POIList.size() < i){
-                    this.POIList.add(i, new POI(priority, blockValue, blockDepth, poiPos, targetID, this));
-                }
-                else{
-                    this.POIList.set(i, new POI(priority, blockValue, blockDepth, poiPos, targetID, this));
-                }
-            }
-        }
+        entityData.set(AIState, tag.getInt("AIState"));
+        entityData.set(MoveDecay, tag.getInt("MoveDecay"));
     }
-     */
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(AIState, -1);
+        this.entityData.define(MoveDecay, 0);
+    }
     /**/
 
     //Goal and POI management methods
     @Override
     protected void registerGoals() {
         //decidePOIGoal(); Old
-        this.goalSelector.addGoal(1, new DelayedMovementGoal(this, 10));
+        this.goalSelector.addGoal(1, new DelayedMovementGoal(this, 10, getNavigation().getPath()));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof ReconstructedBase);}));
-    }
-
-    public class DelayedMovementGoal extends Goal {
-        private final Mob mob;
-        private int tickCounter = 0;
-        private final int delay;
-        private LivingEntity target;
-        float priorrot;
-
-        public DelayedMovementGoal(Mob mob, int delay) {
-            this.mob = mob;
-            this.delay = delay;
-            priorrot = mob.getYRot();
-        }
-
-        @Override
-        public boolean canUse() {
-            return mob.getTarget() != null; // This goal should activate if there is a target
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            return mob.getTarget() != null; // This goal should continue as long as there is a target
-        }
-
-        @Override
-        public void tick() {
-            tickCounter++;
-            if (tickCounter % delay >= 5) {
-                if (mob.getNavigation().getPath() == null) {
-                    target = mob.getTarget();
-                    if (target != null) {
-                        mob.getNavigation().moveTo(target, 1.0D); // Move towards the target
-                    }
-                    else {
-                        stop();
-                    }
-                } else {
-                    mob.getNavigation().tick(); // Continue along the existing path
-                }
-            } else {
-                mob.setYBodyRot(priorrot);
-                mob.getNavigation().stop(); // Temporarily stop navigation updates
-            }
-
-            priorrot = mob.getYRot();
-        }
-
-        @Override
-        public void stop() {
-            tickCounter = 0;
-        }
+        this.targetSelector.addGoal(3, new BreakBlockGoal(this, this::TestTag));
     }
 
     /* Old
@@ -255,7 +194,161 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     }
      */
 
+    boolean TestTag(BlockState givenE){
+        for (String tag : Config.SERVER.juicy_blocks.get()){if(givenE.is(BlockTags.create(new ResourceLocation(tag)))){ return true;}}
+        return false;
+    }
+
     //New goals
+    public class DelayedMovementGoal extends Goal {
+        private final ReconstructedBase parent;
+        private int tickCounter = 0;
+        private final int delay;
+        private LivingEntity target;
+        float priorrot;
+
+        public Path oldPath;
+
+        public DelayedMovementGoal(ReconstructedBase parent, int delay, Path currentPath) {
+            this.parent = parent;
+            this.delay = delay;
+            priorrot = parent.getYRot();
+            this.oldPath = currentPath;
+        }
+
+        @Override
+        public boolean canUse() {
+            return parent.isMovingSmart();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return parent.isMovingSmart();
+        }
+
+        @Override
+        public void tick() {
+            tickCounter++;
+            if (parent.getAIState() == ReconstructedBase.state.Running.ordinal() && tickCounter % delay <= 5){
+                tickCounter++;
+            }
+            if (tickCounter % delay >= 5){
+                if (parent.getNavigation().getPath() == null) {
+                    if (oldPath != null){
+                        parent.getNavigation().moveTo(oldPath, getSpeed());
+                    }
+                    else if (getAIState() == state.Running.ordinal()){
+                        target = parent.getTarget();
+                        if (target != null) {
+                            parent.getNavigation().moveTo(target, 1.0D); // Move towards the target
+                        }
+                        else {
+                            stop();
+                        }
+                    }
+                }
+                else{
+                    parent.getNavigation().tick(); // Continue along the existing path
+                }
+            }
+            else{
+                parent.setYBodyRot(priorrot);
+                oldPath = parent.getNavigation().getPath();
+                parent.getNavigation().stop(); // Temporarily stop navigation updates
+            }
+
+            priorrot = parent.getYRot();
+        }
+    }
+
+    public class BreakBlockGoal extends Goal{
+        public final ReconstructedBase parent;
+        int breakProgress;
+        int lastBreakProgress = -1;
+        private final Predicate<BlockState> targetType;
+
+
+        public BreakBlockGoal(ReconstructedBase parent, Predicate<BlockState> states){
+            this.parent = parent;
+            breakProgress = 0;
+            targetType = states;
+        }
+        @Override
+        public boolean canUse() {
+            if (parent.isAggressive()){
+                return false;
+            }
+            if (parent.JuicyBlock == null){
+                FindJuicyBlock();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            if (parent.isAggressive()){
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            if (parent.JuicyBlock != null){
+                AttemptToBreakBlock();
+            }
+            else{
+                if (parent.tickCount % 20 == 0){
+                    parent.JuicyBlock = FindJuicyBlock();
+                }
+            }
+        }
+
+        void MoveToBlock(){
+            parent.getNavigation().moveTo(JuicyBlock.getX(), JuicyBlock.getY(), JuicyBlock.getZ(), parent.getSpeed());
+        }
+
+        void AttemptToBreakBlock(){
+            if (parent.distanceToSqr(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ()) < 1){
+                breakProgress++;
+                float blockHardness = parent.level().getBlockState(JuicyBlock).getDestroySpeed(parent.level(), JuicyBlock);
+                int progress = (int)((float)breakProgress / blockHardness * 10.0F);
+                if (progress != this.lastBreakProgress) {
+                    parent.level().destroyBlockProgress(parent.getId(), JuicyBlock, progress);
+                    this.lastBreakProgress = progress;
+                }
+
+                setAIState(state.Mining.ordinal());
+
+                if (breakProgress == blockHardness) {
+                    parent.level().removeBlock(JuicyBlock, false);
+                    parent.level().levelEvent(1021, JuicyBlock, 0);
+                    parent.level().levelEvent(2001, JuicyBlock, Block.getId(parent.level().getBlockState(JuicyBlock)));
+                    setAIState(state.Idle.ordinal());
+                    stop();
+                }
+            }
+            else{
+                MoveToBlock();
+            }
+        }
+
+        public BlockPos FindJuicyBlock() {
+            AABB aabb = parent.getBoundingBox().inflate(16);
+            BlockPos ClosestBlock = null;
+            for(BlockPos blockpos : BlockPos.betweenClosed(Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ))) {
+                BlockState state = parent.level().getBlockState(blockpos);
+                double d0 = Double.MAX_VALUE;
+                if (targetType.test(state)){
+                    if (blockpos.distToCenterSqr(parent.position())<d0){
+                        ClosestBlock = blockpos;
+                        d0 = blockpos.distToCenterSqr(parent.position());
+                    }
+                }
+            }
+            return ClosestBlock;
+        }
+    }
     /* Old/Unused
     public class unburyBuriedBlock extends Goal{
         Vec3 poiPos = POIList.get(0).POIPos;
@@ -338,22 +431,26 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
      */
     /**/
 
+    //Methods
+
     //Overridden general methods
 
     @Override
     public void tick() {
         super.tick();
-        MoveDecay++;
+        addMoveDecay(1);
         if (isMovingSmart()){
             if (isAggressive()){
-                AIState = state.Running.ordinal();
+                setAIState(state.Running.ordinal());
             }
             else{
-                AIState = state.Walking.ordinal();
+                setAIState(state.Walking.ordinal());
             }
         }
-        if (getNavigation().getPath() == null){
-            AIState = state.Idle.ordinal();
+        else{
+            if (getNavigation().getPath() == null){
+                setAIState(state.Idle.ordinal());
+            }
         }
         ManageSounds();
     }
@@ -362,7 +459,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     private boolean hasPlayedDeath = false;
 
     public void ManageSounds(){
-        if (AIState == state.Dying.ordinal() && !hasPlayedDeath){
+        if (getAIState() == state.Dying.ordinal() && !hasPlayedDeath && deathTime >= 10){
             if (level().isClientSide()){
                 level().playLocalSound(
                         this.getX(), this.getY(), this.getZ(),
@@ -373,7 +470,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         }
         else{
             if (MoveSoundCD == 0){
-                if (AIState == state.Walking.ordinal()){
+                if (getAIState() == state.Walking.ordinal()){
                     if (level().isClientSide()){
                         level().playLocalSound(
                                 this.getX(), this.getY(), this.getZ(),
@@ -382,7 +479,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
                     }
                     MoveSoundCD = 10;
                 }
-                if (AIState == state.Running.ordinal()){
+                if (getAIState() == state.Running.ordinal()){
                     if (level().isClientSide()){
                         level().playLocalSound(
                                 this.getX(), this.getY(), this.getZ(),
@@ -414,7 +511,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     @Override
     protected void tickDeath() {
         ++this.deathTime;
-        AIState = state.Dying.ordinal();
+        setAIState(state.Dying.ordinal());
         if (this.deathTime >= DeathAnimationLength && !this.level().isClientSide() && !this.isRemoved()) {
             this.level().broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
@@ -438,8 +535,13 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     @Override
     public void travel(Vec3 pTravelVector) {
         super.travel(pTravelVector);
-        if (isInWater() && horizontalCollision){
-            self().setDeltaMovement(self().getDeltaMovement().add(0.0D, 0.1d, 0.0D));
+        if (horizontalCollision){
+            if (isInFluidType()){
+                self().setDeltaMovement(self().getDeltaMovement().add(0.0D, 0.1d, 0.0D));
+            }
+            else if(onGround()){
+                jumpFromGround();
+            }
         }
     }
     /**/
