@@ -120,7 +120,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     }
 
     boolean TestTag(BlockState givenE){
-        for (String tag : Config.SERVER.juicy_blocks.get()){if(givenE.is(BlockTags.create(new ResourceLocation(tag)))){ return true;}}
+        for (String tag : Config.SERVER.juicy_blocks.get()){if(givenE.is(BlockTags.create(new ResourceLocation(tag))) && !givenE.isAir()){ return true;}}
         return false;
     }
 
@@ -204,13 +204,8 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         @Override
         public void tick() {
             if (parent.JuicyBlock != null){
-                if (!parent.level().getBlockState(parent.JuicyBlock).isAir()){
-                    parent.getNavigation().moveTo(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ(), 1.0D);
-                    AttemptToBreakBlock();
-                }
-                else{
-                    parent.JuicyBlock = FindJuicyBlock();
-                }
+                parent.getNavigation().moveTo(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ(), 1.0D);
+                AttemptToBreakBlock();
             }
             else{
                 addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
@@ -226,7 +221,10 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         }
 
         void AttemptToBreakBlock(){
-            if (parent.distanceToSqr(JuicyBlock.getX(), JuicyBlock.getY(), JuicyBlock.getZ()) < 2){
+            if (parent.distanceToSqr(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ()) < 2){
+                parent.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 1));
+
+                /*
                 breakProgress++;
                 float blockHardness = parent.level().getBlockState(JuicyBlock).getDestroySpeed(parent.level(), JuicyBlock);
                 int progress = (int)((float)breakProgress / blockHardness * 10.0F);
@@ -244,6 +242,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
                     setAIState(state.Idle.ordinal());
                     stop();
                 }
+                 */
             }
         }
 

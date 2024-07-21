@@ -2,6 +2,7 @@ package mod.pilot.steampunked.block;
 
 import mod.pilot.steampunked.Steampunked;
 import mod.pilot.steampunked.block.custom.DangerousBlock;
+import mod.pilot.steampunked.block.entity.ReconstructorEntity;
 import mod.pilot.steampunked.items.ModItems;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
