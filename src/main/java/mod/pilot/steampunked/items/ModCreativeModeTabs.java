@@ -51,6 +51,7 @@ public class ModCreativeModeTabs {
 
                         //Advanced Blocks
                         p_259752_.accept(ModBlocks.DANGEROUS_BLOCK.get());
+                        p_259752_.accept(ModBlocks.RECONSTRUCTOR.get());
                     })
                     .build()
     );

@@ -1,6 +1,9 @@
 package mod.pilot.steampunked;
 
+import mod.pilot.steampunked.block.client.ReconstructorRenderer;
+import mod.pilot.steampunked.block.entity.BlockEntities;
 import mod.pilot.steampunked.entity.ModEntities;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -16,6 +19,9 @@ public class CilentManager {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(ModEntities.RECON_ZOMBIE.get(), ReconstructedZombieRenderer::new);
+
+        event.registerBlockEntityRenderer(BlockEntities.RECONSTRUCTOR_ENTITY.get(),
+                (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ReconstructorRenderer());
     }
 
     @SubscribeEvent

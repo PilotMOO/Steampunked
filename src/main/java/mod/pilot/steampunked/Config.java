@@ -24,6 +24,7 @@ public class Config
     public static class Server{
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklisted_targets;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> juicy_blocks;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> mob_build_times;
 
         public Server(ForgeConfigSpec.Builder builder){
             builder.push("Mob Targeting");
@@ -34,6 +35,13 @@ public class Config
             this.juicy_blocks = builder.defineList("Blocks desired by the Reconstructed (Forge Tags)",
                     Lists.newArrayList(
                             "forge:ores/copper", "forge:ores/iron", "forge:ores/coal") , o -> o instanceof String);
+            builder.pop();
+
+            builder.push("Juicy Blocks");
+            builder.push("Build Type Key: 0 = Reconstructed, 1 = Rebuilt, 2 = Innovation");
+            this.mob_build_times = builder.defineList("Mobs and their Build Times [Key: \"Unconverted Mob|Converted Mob|Build Time|Build Type\"",
+                    Lists.newArrayList(
+                            "minecraft:zombie|steampunked:reconstructed_zombie|1200|0") , o -> o instanceof String);
             builder.pop();
         }
     }

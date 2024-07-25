@@ -1,6 +1,7 @@
 package mod.pilot.steampunked;
 
 import com.mojang.logging.LogUtils;
+import mod.pilot.steampunked.block.entity.BlockEntities;
 import mod.pilot.steampunked.entity.ModEntities;
 import mod.pilot.steampunked.entity.reconstucted.ReconstructedBase;
 import net.minecraft.world.entity.Mob;
@@ -41,6 +42,7 @@ public class Steampunked
         //Registers classes (ig)
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        BlockEntities.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         ModSounds.register(modEventBus);
@@ -52,43 +54,4 @@ public class Steampunked
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
     }
-
-    private static final HashMap MobTargetPriorityHashmap = new HashMap<Mob, Integer>(){
-
-    };
-    public static int GetMobPriorityFor(Mob mob){
-        int priority = 0;
-        try{
-            priority = (int)MobTargetPriorityHashmap.get(mob);
-        }
-        catch (Exception e){
-            priority = -1;
-        }
-        finally {
-            return priority;
-        }
-    }
-
-    private static final HashMap BlockValueHashmap = new HashMap<BlockState, Integer>(){
-
-    };
-    public static int GetBlockValueFor(BlockState block){
-        int value = 0;
-        try{
-            value = (int)BlockValueHashmap.get(block);
-        }
-        catch (Exception e){
-            value = -1;
-        }
-        finally {
-            return value;
-        }
-    }
-
-    public static final ArrayList<ReconstructedBase> allReconMobs = new ArrayList<ReconstructedBase>(){
-
-    };
-    public static final ArrayList<ReconstructedBase> allReconMobTypes = new ArrayList<ReconstructedBase>(){
-
-    };
 }

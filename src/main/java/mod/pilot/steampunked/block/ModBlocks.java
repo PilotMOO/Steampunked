@@ -2,7 +2,7 @@ package mod.pilot.steampunked.block;
 
 import mod.pilot.steampunked.Steampunked;
 import mod.pilot.steampunked.block.custom.DangerousBlock;
-import mod.pilot.steampunked.block.entity.ReconstructorEntity;
+import mod.pilot.steampunked.block.entity.Reconstructor;
 import mod.pilot.steampunked.items.ModItems;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
@@ -52,6 +52,8 @@ public class ModBlocks {
 
     public static RegistryObject<Block> DANGEROUS_BLOCK = registryBlock("dangerous_block",
             () -> new DangerousBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(1)));
+    public static RegistryObject<Block> RECONSTRUCTOR = registryBlock("reconstructor",
+            () -> new Reconstructor(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK).noOcclusion()));
 
     private static <T extends Block>RegistryObject<T> registryBlock(String name, Supplier<T> block){
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

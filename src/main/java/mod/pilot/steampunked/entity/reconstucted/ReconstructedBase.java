@@ -2,6 +2,7 @@ package mod.pilot.steampunked.entity.reconstucted;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.steampunked.Config;
+import mod.pilot.steampunked.ReconstructedDataManager;
 import mod.pilot.steampunked.sound.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -34,7 +35,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
     //Upon-creation methods
     protected ReconstructedBase(EntityType<? extends Monster> entityType, Level level){
         super(entityType, level);
-        Steampunked.allReconMobs.add(this);
+        ReconstructedDataManager.allReconMobs.add(this);
     }
 
     public int DeathAnimationLength = 40;
@@ -105,7 +106,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
                 (this, LivingEntity.class,  true,livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof ReconstructedBase);}));
-        this.targetSelector.addGoal(3, new BreakBlockGoal(this));
+        //this.targetSelector.addGoal(3, new BreakBlockGoal(this)); doesnt work
     }
 
     boolean TestTag(BlockState givenE){
@@ -331,7 +332,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         if (this.deathTime >= DeathAnimationLength && !this.level().isClientSide() && !this.isRemoved()) {
             this.level().broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
-            Steampunked.allReconMobs.remove(this);
+            ReconstructedDataManager.allReconMobs.remove(this);
         }
     }
 
