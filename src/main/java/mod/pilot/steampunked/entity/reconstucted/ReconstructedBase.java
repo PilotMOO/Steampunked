@@ -17,26 +17,18 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.BreakDoorGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import mod.pilot.steampunked.Steampunked;
 import net.minecraftforge.fluids.FluidType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class ReconstructedBase extends Monster implements GeoEntity {
     //Upon-creation methods
@@ -55,9 +47,6 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         FeedingReconstructor, //4
         Dying //5
     }
-
-    public BlockPos JuicyBlock;
-
     public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(ReconstructedBase.class, EntityDataSerializers.INT);
     public int getAIState(){return entityData.get(AIState);}
     public void setAIState(Integer count){
@@ -116,7 +105,7 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
                 (this, LivingEntity.class,  true,livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof ReconstructedBase);}));
-        this.targetSelector.addGoal(3, new BreakBlockGoal(this, this::TestTag));
+        this.targetSelector.addGoal(3, new BreakBlockGoal(this));
     }
 
     boolean TestTag(BlockState givenE){
@@ -183,13 +172,13 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
         public final ReconstructedBase parent;
         int breakProgress;
         int lastBreakProgress = -1;
-        private final Predicate<BlockState> targetType;
 
-        public BreakBlockGoal(ReconstructedBase parent, Predicate<BlockState> states){
+        public BlockPos TargetBlock;
+
+        public BreakBlockGoal(ReconstructedBase parent){
             this.parent = parent;
             breakProgress = 0;
-            targetType = states;
-            parent.JuicyBlock = FindJuicyBlock();
+            TargetBlock = FindJuicyBlock();
         }
 
         @Override
@@ -203,25 +192,22 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
 
         @Override
         public void tick() {
-            if (parent.JuicyBlock != null){
-                parent.getNavigation().moveTo(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ(), 1.0D);
-                AttemptToBreakBlock();
+            if (TargetBlock != null){
+                parent.addEffect(new MobEffectInstance(MobEffects.GLOWING, 1));
             }
             else{
-                addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
-                if (parent.tickCount % 120 == 0){
-                    parent.JuicyBlock = FindJuicyBlock();
-                }
+                TargetBlock = parent.FindJuicyBlock();
             }
         }
 
         @Override
         public void stop() {
-            parent.JuicyBlock = null;
+            TargetBlock = null;
         }
 
         void AttemptToBreakBlock(){
-            if (parent.distanceToSqr(parent.JuicyBlock.getX(), parent.JuicyBlock.getY(), parent.JuicyBlock.getZ()) < 2){
+
+            if (parent.distanceToSqr(TargetBlock.getX(), TargetBlock.getY(), TargetBlock.getZ()) < 2){
                 parent.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 1));
 
                 /*
@@ -245,25 +231,23 @@ public abstract class ReconstructedBase extends Monster implements GeoEntity {
                  */
             }
         }
-
-        public BlockPos FindJuicyBlock() {
-            AABB aabb = parent.getBoundingBox().inflate(16);
-            BlockPos ClosestBlock = null;
-            for(BlockPos blockpos : BlockPos.betweenClosed(Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ))) {
-                BlockState state = parent.level().getBlockState(blockpos);
-                double d0 = Double.MAX_VALUE;
-                if (targetType.test(state)){
-                    if (blockpos.distToCenterSqr(parent.position()) < d0){
-                        ClosestBlock = blockpos;
-                        d0 = blockpos.distToCenterSqr(parent.position());
-                    }
-                }
-            }
-            return ClosestBlock;
-        }
     }
 
     //Methods
+    public BlockPos FindJuicyBlock() {
+        AABB aabb = getBoundingBox().inflate(16);
+        BlockPos ClosestBlock = null;
+        for(BlockPos blockpos : BlockPos.betweenClosed(Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ))) {
+            double d0 = Double.MAX_VALUE;
+            if (TestTag(level().getBlockState(blockpos))){
+                if (blockpos.distToCenterSqr(position()) < d0){
+                    ClosestBlock = blockpos;
+                    d0 = blockpos.distToCenterSqr(position());
+                }
+            }
+        }
+        return ClosestBlock;
+    }
 
     //Overridden general methods
 
